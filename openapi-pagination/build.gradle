@@ -1,0 +1,61 @@
+plugins {
+	id 'org.springframework.boot' version '2.2.4.RELEASE'
+	id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+	id 'org.asciidoctor.convert' version '1.5.8'
+	id 'org.openapi.generator' version '4.2.3'
+	id 'java'
+}
+
+sourceSets {
+	main {
+		java.srcDirs += "$buildDir/generate-resources/main/src/main/java"
+	}
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+//	implementation 'org.springframework.boot:spring-boot-starter-data-neo4j'
+	implementation 'org.hsqldb:hsqldb'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	compile 'org.springframework:spring-webmvc'
+	compile "io.swagger:swagger-annotations:1.5.20"
+	compile 'com.fasterxml.jackson.core:jackson-databind'
+	compile "org.openapitools:jackson-databind-nullable:${openapitoolsJacksonnullableVersion}"
+	compile 'javax.servlet:javax.servlet-api'
+	compile 'javax.validation:validation-api'
+	compile "io.swagger.core.v3:swagger-annotations:${swaggerAnnotationsVersion}"
+	compile "io.swagger:swagger-annotations:1.5.20"
+	compile "io.springfox:springfox-swagger2:${springfoxSwagger2Version}"
+	compile "io.springfox:springfox-swagger-ui:${springfoxSwaggerUiVersion}"
+
+	testImplementation('org.springframework.boot:spring-boot-starter-test') {
+		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+	}
+}
+
+test {
+	useJUnitPlatform()
+}
+
+openApiGenerate {
+	generatorName = 'spring'
+	inputSpec = file('./src/main/resources/client-api.yml').toString()
+	apiPackage = 'com.example.openapi.pagination.api'
+	modelPackage = 'com.example.openapi.pagination.api.model'
+	invokerPackage = 'com.example.openapi.pagination.api'
+	packageName = 'com.example.openapi.pagination.api'
+	additionalProperties = [
+			configPackage: 'com.example.openapi.pagination.api.config'
+	]
+	configOptions = [
+			dateLibrary: 'java8',
+			interfaceOnly: "true",
+			useTags: "true",
+			useBeanValidation: "true",
+			hideGenerationTimestamp: "true",
+			booleanGetterPrefix: "is",
+			swaggerDocketConfig: "true",
+	]
+}
+
+compileJava.dependsOn tasks.openApiGenerate

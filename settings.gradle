@@ -1,0 +1,4 @@
+rootProject.name = 'rest-pagination'
+
+include ':openapi-pagination'
+include ':spring-rest-pagination'

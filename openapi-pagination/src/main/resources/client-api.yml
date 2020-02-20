@@ -1,0 +1,160 @@
+openapi: 3.0.1
+info:
+  title: Client API
+  description: Client API with basic pagination support
+  version: 1.0.0
+
+servers:
+  - url: http://api/v1
+
+paths:
+  '/clients1':
+    get:
+      tags:
+        - clients1
+      summary: Client list
+      operationId: findAll1
+      parameters:
+        - name: page
+          in: query
+          description: number of the requested page (begins at 0)
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          description: size of the requested page (begins at ?0)
+          schema:
+            type: integer
+            default: 10
+        - name: sort
+          in: query
+          description: size of the requested page (begins at ?0)
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: List of clients
+          content:
+            application/json:
+              schema:
+                $ref: "#/definitions/PagedClient"
+
+  '/clients2':
+    get:
+      tags:
+        - clients2
+      summary: Client list
+      operationId: findAll2
+      parameters:
+        - in: query
+          name: pageable
+          style: form
+          explode: true
+          schema:
+            $ref: "#/definitions/Pageable"
+      responses:
+        '200':
+          description: List of clients
+          content:
+            application/json:
+              schema:
+                $ref: "#/definitions/PagedClient"
+
+  '/clients3':
+    get:
+      tags:
+        - clients3
+      summary: Client list
+      operationId: findAll3
+      parameters:
+        - name: range
+          in: query
+          description: |
+            Used for paginated queries, this parameters contains the
+            index of the first and last resource returned in the page.
+            Sample value: 10-25
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of clients
+          headers:
+            Content-Range:
+              schema:
+                type: string
+              description: |
+                Content range header for pagination purposes
+                Sample value: Content-Range: 0-47/48
+            Accept-Range:
+              schema:
+                type: string
+              description: |
+                Content range header for pagination purposes
+                Accept-Range: items 50
+          content:
+            application/json:
+              schema:
+                $ref: "#/definitions/PagedClient"
+
+components:
+  schemas:
+    Pageable:
+      type: object
+      properties:
+        page:
+          type: integer
+          default: 0
+          description: number of the requested page (begins at 0)
+        size:
+          type: integer
+          default: 10
+          description: size of the requested page (begins at ?0)
+        sort:
+          type: array
+          items:
+            type: string
+          description: size of the requested page (begins at ?0)
+    PagedClient:
+      allOf:
+        - properties:
+            items:
+              type: array
+              items:
+                $ref: "#/definitions/Client"
+        - $ref: "#/definitions/Paging"
+    Client:
+      required:
+        - firstname
+        - lastname
+      properties:
+        id:
+          type: integer
+          format: int64
+        version:
+          type: integer
+        firstname:
+          type: string
+        lastname:
+          type: string
+    Paging:
+      properties:
+        totalElements:
+          type: integer
+          description: |
+            Nombre total de ressources existantes
+          format: int64
+        totalPages:
+          type: integer
+          description: |
+            Nombre de pages totales existantes
+        size:
+          type: integer
+          description: |
+            Nombre d'enregistrements demandés par page
+        number:
+          type: integer
+          description: |
+            Numéro de la page retournée (commence à 0)
